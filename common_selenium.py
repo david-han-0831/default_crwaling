@@ -273,3 +273,50 @@ class Selenium():
     elif text == False:
       for i in elem:
         self.log.info(i)
+
+  def screen_shot_by_xpath(self,
+                          top_xpath: str,
+                          bottom_xpath: str,
+                          screen_shot_area_xpath: str,
+                          file_path: str,
+                          file_name: str = None) -> None:
+    """
+    xpath 영역 스크린샷
+      params
+        top_xpath: `상단 xpath`
+        bottom_xpath: `하단 xpath`
+        screen_shot_area_xpath: `스크린샷 영역 xpath`
+        file_path: `파일 경로`
+        file_name: `파일 이름`
+    """
+    # 파일 경로 없으면 생성
+    if not os.path.isdir(file_path): 
+      os.mkdir(file_path)
+
+    if file_name == '' or file_name == None:
+      # 현재 시간 가져오기
+      current_time = datetime.datetime.now()
+      # 원하는 포맷으로 포맷팅
+      formatted_time = current_time.strftime('%Y-%m-%d')
+
+      # 2023-08-01.csv
+      filename = f'{file_path}/{formatted_time}.csv'
+    else:
+      filename = f'{file_path}/{file_name}.csv' 
+    
+    # 상단, 하단 element 가져오기
+    top_elem = self.get_element_by_xpath(top_xpath)
+    bottom_elem = self.get_element_by_xpath(bottom_xpath)
+
+    # 스크린샷 영역 설정
+    screen_shot_area = self.get_element_by_xpath(screen_shot_area_xpath)
+
+    # 가로, 세로 길이 설정
+    height = top_elem.location['y'] + bottom_elem.location['y']
+    width = self.driver.execute_script('return document.body.scrollWidth')
+    self.driver.set_window_size(width, height)
+
+    # 스크린샷
+    screen_shot_area.screenshot(filename)
+
+    self.log.info(f'{filename} 파일에 스크린샷 저장 완료!\n')
